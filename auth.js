@@ -1,4 +1,4 @@
-const BASE = "http://localhost:4000/api";
+const BASE = "https://backend-restaurant-emb6.onrender.com/api";
 
 function switchTab(tab) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
