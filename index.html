@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFC Uzbekistan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #e4002b; --red-dark: #c0001f; --red-light: #fde8ed;
+      --green: #006633; --bg: #f5f5f5; --white: #fff;
+      --border: #e8e8e8; --text: #1a1a1a; --muted: #777;
+      --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    body { font-family: "Open Sans", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .hidden { display: none !important; }
+    .page { min-height: 100vh; }
+    .btn { padding: 11px 22px; border-radius: 50px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; transition: all 0.2s; }
+    .btn-red { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(228,0,43,0.28); }
+    .btn-red:hover { background: var(--red-dark); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { background: #f0f0f0; color: var(--text); }
+    .btn-danger { background: transparent; color: var(--red); border: 1.5px solid var(--border); font-size: 12px; padding: 7px 14px; }
+    .btn-danger:hover { background: var(--red-light); border-color: #ffb3c1; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: 13px; font-weight: 700; color: var(--text); }
+    input, select, textarea {
+      width: 100%; padding: 11px 15px; background: #f8f8f8;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--red); background: #fff; }
+    input::placeholder, textarea::placeholder { color: #bbb; }
+    textarea { resize: vertical; min-height: 80px; }
+    .msg { font-size: 13px; min-height: 18px; font-weight: 600; color: var(--red); }
+    .msg.success { color: var(--green); }
+
+    /* AUTH */
+    #auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #fff5f7 0%, #f5f5f5 100%); }
+    .auth-card { background: var(--white); border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); }
+    .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .logo-box { width: 42px; height: 42px; background: var(--red); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; font-weight: 800; flex-shrink: 0; }
+    .logo-text { font-size: 22px; font-weight: 800; }
+    .logo-text span { color: var(--red); }
+    .auth-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .tabs { display: flex; background: #f0f0f0; border-radius: 50px; padding: 4px; margin-bottom: 24px; }
+    .tab { flex: 1; padding: 9px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; border-radius: 50px; transition: all 0.2s; }
+    .tab.active { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(228,0,43,0.3); }
+    .auth-form { display: flex; flex-direction: column; gap: 14px; }
+    .auth-link { font-size: 13px; color: var(--red); cursor: pointer; text-align: center; font-weight: 600; }
+    .auth-link:hover { color: var(--red-dark); }
+
+    /* NAV */
+    .top-nav { background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .top-nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .nav-logo .logo-box { width: 36px; height: 36px; font-size: 16px; border-radius: 8px; }
+    .nav-logo .logo-text { font-size: 18px; }
+    .nav-center { display: flex; gap: 8px; }
+    .nav-pill { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 50px; border: none; background: #f0f0f0; color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .nav-pill:hover { background: #e5e5e5; color: var(--text); }
+    .nav-pill.active { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(228,0,43,0.28); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .avatar-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); overflow: hidden; cursor: pointer; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .avatar-btn:hover { border-color: var(--red); }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* LAYOUT */
+    .app-layout { max-width: 1200px; margin: 0 auto; display: flex; min-height: calc(100vh - 64px); }
+    .sidebar { width: 220px; flex-shrink: 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; background: var(--white); border-right: 1px solid var(--border); padding: 14px 10px; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; border: none; background: transparent; border-radius: 50px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); text-align: left; transition: all 0.15s; }
+    .sidebar-item:hover { background: #f5f5f5; color: var(--text); }
+    .sidebar-item.active { background: var(--red-light); color: var(--red); }
+    .sidebar-icon { width: 30px; height: 30px; border-radius: 8px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .sidebar-item.active .sidebar-icon { background: #ffc8d2; }
+    .main-content { flex: 1; overflow: hidden; }
+    .content-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; }
+    .content-header h2 { font-size: 20px; font-weight: 800; }
+    .content-body { padding: 24px 28px; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+    .stat-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: var(--red); }
+    .section-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+    /* CARDS */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .item-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 14px; transition: all 0.2s; animation: fadeIn 0.2s ease; }
+    .item-card:hover { border-color: #ddd; box-shadow: var(--shadow); transform: translateY(-1px); }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .item-thumb { width: 60px; height: 60px; border-radius: 10px; background: linear-gradient(135deg, #fde8ed, #ffe0cc); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; }
+    .item-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+    .item-info { flex: 1; }
+    .item-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .item-meta { font-size: 12px; color: var(--muted); }
+    .item-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+    .price-badge { background: var(--red); color: #fff; font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 50px; white-space: nowrap; }
+    .cat-tag { display: inline-block; background: var(--red-light); color: var(--red); font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-review { background: #e8f5e9; color: #2e7d32; }
+    .badge-complaint { background: var(--red-light); color: var(--red); }
+    .empty { text-align: center; padding: 60px 0; color: var(--muted); font-size: 14px; grid-column: 1/-1; }
+
+    /* UPLOAD */
+    .upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: #fafafa; }
+    .upload-area:hover { border-color: var(--red); background: var(--red-light); }
+    .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; background: none; border: none; }
+    .upload-preview { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; border: 2px solid var(--border); margin-bottom: 8px; }
+    .upload-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .upload-label span { color: var(--red); }
+
+    /* MODAL */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 300; backdrop-filter: blur(3px); padding: 20px; }
+    .modal-box { background: var(--white); border-radius: 20px; padding: 28px 30px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-lg); animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto; }
+    @keyframes modalIn { from { opacity:0; scale:0.96; } to { opacity:1; scale:1; } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; }
+    .modal-header h3 { font-size: 17px; font-weight: 800; }
+    .modal-close { width: 30px; height: 30px; border-radius: 50%; border: none; background: #f0f0f0; color: var(--muted); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: #e0e0e0; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* USER MENU */
+    .menu-page { display: flex; flex-direction: column; }
+    .menu-layout { display: flex; flex: 1; }
+    .menu-sidebar { width: 200px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 14px 10px; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+    .menu-cat-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 50px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--muted); text-align: left; transition: all 0.15s; }
+    .menu-cat-btn:hover { background: #f5f5f5; color: var(--text); }
+    .menu-cat-btn.active { background: var(--red-light); color: var(--red); }
+    .menu-main { flex: 1; padding: 24px; }
+    .menu-section-title { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .menu-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all 0.2s; animation: fadeIn 0.2s ease; display: flex; flex-direction: column; }
+    .menu-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .menu-card-img { height: 180px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 52px; overflow: hidden; position: relative; }
+    .menu-card-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; background: #f5f5f5; }
+    .menu-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .menu-card-name { font-size: 15px; font-weight: 700; }
+    .menu-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
+    .menu-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+
+    /* PROFILE */
+    .profile-page { max-width: 600px; margin: 0 auto; padding: 28px 24px; }
+    .profile-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--red); overflow: hidden; background: var(--red-light); display: flex; align-items: center; justify-content: center; font-size: 36px; cursor: pointer; position: relative; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-avatar-overlay { position: absolute; inset: 0; background: rgba(228,0,43,0.7); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; font-size: 20px; color: #fff; }
+    .profile-avatar:hover .profile-avatar-overlay { opacity: 1; }
+    .profile-avatar input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; padding: 0; background: none; border: none; }
+    .profile-name { font-size: 20px; font-weight: 800; }
+    .profile-email { font-size: 13px; color: var(--muted); }
+    .profile-form-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .profile-form-card h3 { font-size: 16px; font-weight: 800; }
+
+    /* FEEDBACK */
+    .feedback-page { max-width: 560px; margin: 0 auto; padding: 28px 24px; }
+    .feedback-card { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+    .feedback-card h3 { font-size: 18px; font-weight: 800; }
+    .type-btns { display: flex; gap: 10px; }
+    .type-btn { flex: 1; padding: 10px; border: 1.5px solid var(--border); border-radius: 10px; background: transparent; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .type-btn.active.review { background: #e8f5e9; color: #2e7d32; border-color: #2e7d32; }
+    .type-btn.active.complaint { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
+    .spinner-wrap { display: flex; align-items: center; justify-content: center; padding: 60px 0; grid-column: 1/-1; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #f0f0f0; border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 700px) {
+      .sidebar, .menu-sidebar { display: none; }
+      .nav-center { display: none; }
+      .content-body, .menu-main { padding: 16px; }
+      .content-header { padding: 14px 16px; }
+      .menu-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="auth-page" class="page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-box">Q</div>
+      <div class="logo-text">QR<span>Menu</span></div>
+    </div>
+    <p class="auth-subtitle">Kirish yoki ro'yxatdan o'tish</p>
+    <div class="tabs">
+      <button class="tab active" onclick="authTab('login', this)">Kirish</button>
+      <button class="tab" onclick="authTab('register', this)">Ro'yxat</button>
+    </div>
+    <form id="login-form" class="auth-form" onsubmit="doLogin(event)">
+      <div class="input-group"><label>Email</label><input type="email" id="l-email" placeholder="email@example.com" required /></div>
+      <div class="input-group"><label>Parol</label><input type="password" id="l-pass" placeholder="••••••••" required /></div>
+      <button type="submit" class="btn btn-red">Kirish</button>
+      <p class="auth-link" onclick="showForgot()">Parolni unutdingizmi?</p>
+      <div id="login-msg" class="msg"></div>
+    </form>
+    <form id="register-form" class="auth-form hidden" onsubmit="doRegister(event)">
+      <div class="input-group"><label>Ism</label><input type="text" id="r-name" placeholder="To'liq ism" required /></div>
+      <div class="input-group"><label>Email</label><input type="email" id="r-email" placeholder="email@example.com" required /></div>
+      <div class="input-group"><label>Parol</label><input type="password" id="r-pass" placeholder="••••••••" required /></div>
+      <button type="submit" class="btn btn-red">Ro'yxatdan o'tish</button>
+      <div id="register-msg" class="msg"></div>
+    </form>
+    <form id="forgot-form" class="auth-form hidden" onsubmit="doForgot(event)">
+      <div class="input-group"><label>Email</label><input type="email" id="f-email" placeholder="email@example.com" required /></div>
+      <button type="submit" class="btn btn-red">Yuborish</button>
+      <p class="auth-link" onclick="authTab('login', document.querySelectorAll('.tab')[0])">← Orqaga</p>
+      <div id="forgot-msg" class="msg"></div>
+    </form>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-page" class="page hidden">
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-logo" onclick="goHome()">
+        <div class="logo-box">K</div>
+        <div class="logo-text">KFC<span> Uzbekistan</span></div>
+      </div>
+      <nav class="nav-center" id="nav-center"></nav>
+      <div class="nav-right">
+        <div class="avatar-btn" onclick="goProfile()" id="nav-avatar" style="display:none">👤</div>
+        <button class="btn btn-ghost" onclick="doLogout()" id="nav-logout-btn" style="padding:8px 16px;font-size:13px;display:none">Chiqish</button>
+        <button class="btn btn-red" onclick="goToLogin()" id="nav-login-btn" style="padding:8px 16px;font-size:13px;display:none">Kirish</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="admin-layout" class="app-layout hidden">
+    <aside class="sidebar" id="admin-sidebar"></aside>
+    <div class="main-content">
+      <div id="admin-categories" class="hidden">
+        <div class="content-header">
+          <h2>Kategoriyalar</h2>
+          <button class="btn btn-red" onclick="openModal('cat-modal')">+ Qo'shish</button>
+        </div>
+        <div class="content-body">
+          <div id="cat-stats" class="stats-row"></div>
+          <div class="section-label">Barcha kategoriyalar</div>
+          <div id="cat-list" class="card-grid"></div>
+        </div>
+      </div>
+      <div id="admin-products" class="hidden">
+        <div class="content-header">
+          <h2>Mahsulotlar</h2>
+          <button class="btn btn-red" onclick="openModal('prod-modal')">+ Qo'shish</button>
+        </div>
+        <div class="content-body">
+          <div id="prod-stats" class="stats-row"></div>
+          <div class="section-label">Barcha mahsulotlar</div>
+          <div id="prod-list" class="card-grid"></div>
+        </div>
+      </div>
+      <div id="admin-feedbacks" class="hidden">
+        <div class="content-header"><h2>Feedbacklar</h2></div>
+        <div class="content-body">
+          <div id="feed-stats" class="stats-row"></div>
+          <div class="section-label">Barcha feedbacklar</div>
+          <div id="feed-list" class="card-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-layout" class="hidden">
+    <div id="user-menu" class="menu-page hidden">
+      <div class="menu-layout">
+        <aside class="menu-sidebar" id="menu-sidebar"></aside>
+        <main class="menu-main">
+          <h2 class="menu-section-title" id="menu-section-title">Menyu</h2>
+          <div class="menu-grid" id="menu-grid"><div class="spinner-wrap"><div class="spinner"></div></div></div>
+        </main>
+      </div>
+    </div>
+    <div id="user-profile" class="hidden">
+      <div class="profile-page">
+        <div class="profile-card">
+          <div class="profile-avatar">
+            <span id="profile-avatar-emoji">👤</span>
+            <img id="profile-avatar-img" src="" style="display:none" />
+            <div class="profile-avatar-overlay">📷</div>
+            <input type="file" accept="image/*" onchange="uploadProfileAvatar(this)" />
+          </div>
+          <div>
+            <div class="profile-name" id="profile-name-display">—</div>
+            <div class="profile-email" id="profile-email-display">—</div>
+          </div>
+        </div>
+        <div class="profile-form-card">
+          <h3>Ma'lumotlarni tahrirlash</h3>
+          <div class="input-group"><label>Ism</label><input type="text" id="profile-name-input" placeholder="Ismingiz" /></div>
+          <div class="input-group"><label>Telefon</label><input type="text" id="profile-phone-input" placeholder="+998 90 000 00 00" /></div>
+          <button class="btn btn-red" onclick="saveProfile()" style="align-self:flex-start">Saqlash</button>
+          <div id="profile-msg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+    <div id="user-feedback" class="hidden">
+      <div class="feedback-page">
+        <div class="feedback-card">
+          <h3>💬 Fikr-mulohaza qoldiring</h3>
+          <div class="input-group">
+            <label>Tur</label>
+            <div class="type-btns">
+              <button class="type-btn review active" id="type-review" onclick="setFeedType('review')">⭐ Sharh</button>
+              <button class="type-btn complaint" id="type-complaint" onclick="setFeedType('complaint')">⚠️ Shikoyat</button>
+            </div>
+          </div>
+          <div class="input-group"><label>Xabar</label><textarea id="feed-message" placeholder="Fikringizni yozing..."></textarea></div>
+          <button class="btn btn-red" onclick="submitFeedback()" style="align-self:flex-start">Yuborish</button>
+          <div id="feed-msg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div id="cat-modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Kategoriya qo'shish</h3>
+      <button class="modal-close" onclick="closeModal('cat-modal')">✕</button>
+    </div>
+    <div class="input-group"><label>Kategoriya nomi</label><input type="text" id="cat-name" placeholder="Masalan: Burgerlar" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('cat-modal')">Bekor</button>
+      <button class="btn btn-red" onclick="createCategory()">Saqlash</button>
+    </div>
+    <div id="cat-msg" class="msg"></div>
+  </div>
+</div>
+
+<div id="prod-modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Mahsulot qo'shish</h3>
+      <button class="modal-close" onclick="closeModal('prod-modal')">✕</button>
+    </div>
+    <div class="input-group"><label>Mahsulot nomi</label><input type="text" id="prod-name" placeholder="Masalan: Kranch burger" /></div>
+    <div class="input-group"><label>Tavsif</label><textarea id="prod-desc" placeholder="Qisqa tavsif..."></textarea></div>
+    <div class="input-group"><label>Narx (so'm)</label><input type="number" id="prod-price" placeholder="19000" /></div>
+    <div class="input-group">
+      <label>Kategoriya</label>
+      <select id="prod-category"><option value="">Kategoriya tanlang</option></select>
+    </div>
+    <div class="input-group">
+      <label>Rasm</label>
+      <div class="upload-area">
+        <input type="file" accept="image/*" id="prod-image-file" onchange="previewProdImage(this)" />
+        <img id="prod-image-preview" class="upload-preview hidden" src="" alt="" />
+        <div class="upload-label" id="prod-upload-label">📷 Rasm yuklash uchun bosing<br><span>JPG, PNG — 5MB gacha</span></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('prod-modal')">Bekor</button>
+      <button class="btn btn-red" onclick="createProduct()">Saqlash</button>
+    </div>
+    <div id="prod-msg" class="msg"></div>
+  </div>
+</div>
+
+<script>
+  const BASE = "http://localhost:4000/api";
+  const IMG_BASE = "http://localhost:4000/uploads";
+
+  let currentUser = null;
+  let isAdmin = false;
+  let categories = [];
+  let products = [];
+  let feedbackType = "review";
+
+  const catIcons = { "default":"\uD83C\uDF7D\uFE0F", "burger":"\uD83C\uDF54", "salad":"\uD83E\uDD57", "suvli":"\uD83D\uDCA7", "lanch":"\uD83D\uDCE6", "kartoshka":"\uD83C\uDF5F", "sovuq":"\uD83E\uDD64", "issiq":"\u2615", "shirin":"\uD83C\uDF70", "ichimlik":"\uD83E\uDD64", "gosht":"\uD83E\uDD69" };
+  function getIcon(name) {
+    name = name || "";
+    const k = name.toLowerCase();
+    if (k.includes("burger")) return catIcons["burger"];
+    if (k.includes("salad")) return catIcons["salad"];
+    if (k.includes("suvli")) return catIcons["suvli"];
+    if (k.includes("lanch")) return catIcons["lanch"];
+    if (k.includes("kartoshka")) return catIcons["kartoshka"];
+    if (k.includes("sovuq")) return catIcons["sovuq"];
+    if (k.includes("issiq")) return catIcons["issiq"];
+    if (k.includes("shirin")) return catIcons["shirin"];
+    if (k.includes("ichimlik")) return catIcons["ichimlik"];
+    if (k.includes("gosht") || k.includes("go'sht") || k.includes("gusht")) return catIcons["gosht"];
+    return catIcons["default"];
+  }
+
+  function token() { return localStorage.getItem("token"); }
+  function authHeaders() { return { "Content-Type":"application/json", Authorization:`Bearer ${token()}` }; }
+  function show(id) { document.getElementById(id)?.classList.remove("hidden"); }
+  function hide(id) { document.getElementById(id)?.classList.add("hidden"); }
+  function openModal(id) { show(id); if (id === "prod-modal") loadCatOptions(); }
+  function closeModal(id) { hide(id); }
+
+  function authTab(tab, el) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    ["login-form","register-form","forgot-form"].forEach(f => hide(f));
+    el.classList.add("active");
+    show(tab + "-form");
+  }
+  function showForgot() {
+    ["login-form","register-form"].forEach(f => hide(f));
+    show("forgot-form");
+  }
+
+  async function doLogin(e) {
+    e.preventDefault();
+    const msg = document.getElementById("login-msg");
+    try {
+      const res = await fetch(`${BASE}/auth/login`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ email: document.getElementById("l-email").value.trim(), password: document.getElementById("l-pass").value })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Xato");
+      localStorage.setItem("token", data.data.accessToken);
+      localStorage.setItem("user", JSON.stringify({
+        name: data.data.user?.name || data.data.name || "Foydalanuvchi",
+        email: document.getElementById("l-email").value.trim(),
+        role: data.data.user?.role || "user"
+      }));
+      initApp();
+    } catch(err) { msg.textContent = err.message; }
+  }
+
+  async function doRegister(e) {
+    e.preventDefault();
+    const msg = document.getElementById("register-msg");
+    try {
+      const res = await fetch(`${BASE}/auth/register`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          name: document.getElementById("r-name").value,
+          email: document.getElementById("r-email").value,
+          password: document.getElementById("r-pass").value,
+          role: "user"
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Xato");
+      localStorage.setItem("token", data.data.accessToken);
+      localStorage.setItem("user", JSON.stringify({
+        name: document.getElementById("r-name").value,
+        email: document.getElementById("r-email").value,
+        role: data.data.user?.role || "user"
+      }));
+      initApp();
+    } catch(err) { msg.textContent = err.message; }
+  }
+
+  async function doForgot(e) {
+    e.preventDefault();
+    const msg = document.getElementById("forgot-msg");
+    try {
+      const res = await fetch(`${BASE}/auth/forgot-password`, {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ email: document.getElementById("f-email").value })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Xato");
+      msg.className = "msg success";
+      msg.textContent = "Email yuborildi!";
+    } catch(err) { msg.className = "msg"; msg.textContent = err.message; }
+  }
+
+  function doLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    location.reload();
+  }
+
+  function initApp() {
+    const raw = localStorage.getItem("user");
+    currentUser = raw ? JSON.parse(raw) : null;
+    isAdmin = currentUser?.role === "admin";
+
+    hide("auth-page");
+    show("app-page");
+
+    // Navbar tugmalarini rol ga qarab ko'rsatish
+    if (currentUser) {
+      document.getElementById("nav-avatar").style.display = "";
+      document.getElementById("nav-logout-btn").style.display = "";
+      document.getElementById("nav-login-btn").style.display = "none";
+      const savedAvatar = localStorage.getItem("profile_avatar");
+      updateNavAvatar(savedAvatar);
+    } else {
+      // Viewer — login qilmagan
+      document.getElementById("nav-avatar").style.display = "none";
+      document.getElementById("nav-logout-btn").style.display = "none";
+      document.getElementById("nav-login-btn").style.display = "";
+    }
+
+    if (isAdmin) {
+      show("admin-layout");
+      buildAdminNav();
+      buildAdminSidebar();
+      showAdminSection("categories");
+    } else {
+      show("user-layout");
+      buildUserNav();
+      showUserSection("menu");
+      loadMenuData();
+      if (currentUser) loadProfileData();
+    }
+  }
+
+  function goToLogin() {
+    hide("app-page");
+    show("auth-page");
+  }
+
+  function buildAdminNav() {
+    document.getElementById("nav-center").innerHTML = `
+      <button class="nav-pill active" id="nav-categories" onclick="showAdminSection('categories')">\uD83D\uDCCB Kategoriyalar</button>
+      <button class="nav-pill" id="nav-products" onclick="showAdminSection('products')">\uD83C\uDF57 Mahsulotlar</button>
+      <button class="nav-pill" id="nav-feedbacks" onclick="showAdminSection('feedbacks')">\uD83D\uDCAC Feedbacklar</button>
+    `;
+  }
+
+  function buildUserNav() {
+    const feedbackBtn = currentUser
+      ? `<button class="nav-pill" id="nav-feedback-nav" onclick="showUserSection('feedback')">\uD83D\uDCAC Feedback</button>`
+      : `<button class="nav-pill" id="nav-feedback-nav" onclick="requireLogin()">\uD83D\uDCAC Feedback</button>`;
+    document.getElementById("nav-center").innerHTML = `
+      <button class="nav-pill active" id="nav-menu" onclick="showUserSection('menu')">\uD83C\uDF7D\uFE0F Menyu</button>
+      ${feedbackBtn}
+    `;
+  }
+
+  function requireLogin() {
+    if (confirm("Bu bo'lim uchun kirish kerak. Kirmoqchimisiz?")) {
+      goToLogin();
+    }
+  }
+
+  function updateNavAvatar(src) {
+    const el = document.getElementById("nav-avatar");
+    if (src) el.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+    else el.textContent = "\uD83D\uDC64";
+  }
+
+  function buildAdminSidebar() {
+    const items = [
+      { key:"categories", icon:"\uD83D\uDCCB", label:"Kategoriyalar" },
+      { key:"products", icon:"\uD83C\uDF57", label:"Mahsulotlar" },
+      { key:"feedbacks", icon:"\uD83D\uDCAC", label:"Feedbacklar" },
+    ];
+    document.getElementById("admin-sidebar").innerHTML = items.map(i => `
+      <button class="sidebar-item" id="side-${i.key}" onclick="showAdminSection('${i.key}')">
+        <span class="sidebar-icon">${i.icon}</span> ${i.label}
+      </button>
+    `).join("");
+  }
+
+  function showAdminSection(name) {
+    ["categories","products","feedbacks"].forEach(s => {
+      hide(`admin-${s}`);
+      document.getElementById(`side-${s}`)?.classList.remove("active");
+      document.getElementById(`nav-${s}`)?.classList.remove("active");
+    });
+    show(`admin-${name}`);
+    document.getElementById(`side-${name}`)?.classList.add("active");
+    document.getElementById(`nav-${name}`)?.classList.add("active");
+    if (name === "categories") loadCategories();
+    if (name === "products") loadProducts();
+    if (name === "feedbacks") loadFeedbacks();
+  }
+
+  function showUserSection(name) {
+    ["menu","profile","feedback"].forEach(s => hide(`user-${s}`));
+    document.querySelectorAll(".nav-pill").forEach(b => b.classList.remove("active"));
+    show(`user-${name}`);
+    if (name === "menu") document.getElementById("nav-menu")?.classList.add("active");
+    if (name === "feedback") document.getElementById("nav-feedback-nav")?.classList.add("active");
+  }
+
+  function goHome() { isAdmin ? showAdminSection("categories") : showUserSection("menu"); }
+  function goProfile() {
+    if (!currentUser) { requireLogin(); return; }
+    showUserSection("profile");
+  }
+
+  async function loadCategories() {
+    const list = document.getElementById("cat-list");
+    const stats = document.getElementById("cat-stats");
+    list.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div></div>`;
+    try {
+      const res = await fetch(`${BASE}/categories`, { headers: authHeaders() });
+      const data = await res.json();
+      categories = data.data || [];
+      stats.innerHTML = `<div class="stat-card"><div class="stat-label">Jami</div><div class="stat-value">${categories.length}</div></div>`;
+      if (!categories.length) { list.innerHTML = `<p class="empty">Kategoriyalar yo'q</p>`; return; }
+      list.innerHTML = categories.map(c => `
+        <div class="item-card">
+          <div class="item-thumb">${getIcon(c.name)}</div>
+          <div class="item-info">
+            <div class="item-name">${c.name}</div>
+            <div class="item-meta">${new Date(c.createdAt).toLocaleDateString("uz-UZ")}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-danger" onclick="deleteCategory('${c._id}')">O'chirish</button>
+          </div>
+        </div>
+      `).join("");
+    } catch(err) { list.innerHTML = `<p class="empty">Xato: ${err.message}</p>`; }
+  }
+
+  async function createCategory() {
+    const name = document.getElementById("cat-name").value.trim();
+    const msg = document.getElementById("cat-msg");
+    if (!name) { msg.textContent = "Nom kiriting"; return; }
+    try {
+      const res = await fetch(`${BASE}/categories`, {
+        method:"POST", headers: authHeaders(), body: JSON.stringify({ name })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      document.getElementById("cat-name").value = "";
+      closeModal("cat-modal");
+      loadCategories();
+    } catch(err) { msg.textContent = err.message; }
+  }
+
+  async function deleteCategory(id) {
+    if (!confirm("O'chirilsinmi?")) return;
+    await fetch(`${BASE}/categories/${id}`, { method:"DELETE", headers: authHeaders() });
+    loadCategories();
+  }
+
+  async function loadProducts() {
+    const list = document.getElementById("prod-list");
+    const stats = document.getElementById("prod-stats");
+    list.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div></div>`;
+    try {
+      const res = await fetch(`${BASE}/products`, { headers: authHeaders() });
+      const data = await res.json();
+      products = data.data || [];
+      const avg = products.length ? Math.round(products.reduce((s,p)=>s+p.price,0)/products.length) : 0;
+      stats.innerHTML = `
+        <div class="stat-card"><div class="stat-label">Jami</div><div class="stat-value">${products.length}</div></div>
+        <div class="stat-card"><div class="stat-label">O'rtacha narx</div><div class="stat-value">${avg.toLocaleString()}</div></div>
+      `;
+      if (!products.length) { list.innerHTML = `<p class="empty">Mahsulotlar yo'q</p>`; return; }
+      list.innerHTML = products.map(p => `
+        <div class="item-card">
+          <div class="item-thumb">
+            ${p.image ? `<img src="${IMG_BASE}/${p.image}" alt="${p.name}" />` : getIcon(p.category_id?.name||"")}
+          </div>
+          <div class="item-info">
+            <div class="item-name">${p.name}</div>
+            <div class="item-meta"><span class="cat-tag">${p.category_id?.name||"-"}</span></div>
+          </div>
+          <div class="item-actions">
+            <span class="price-badge">${Number(p.price).toLocaleString()} UZS</span>
+            <button class="btn btn-danger" onclick="deleteProduct('${p._id}')">O'chirish</button>
+          </div>
+        </div>
+      `).join("");
+    } catch(err) { list.innerHTML = `<p class="empty">Xato: ${err.message}</p>`; }
+  }
+
+  async function loadCatOptions() {
+    try {
+      const res = await fetch(`${BASE}/categories`, { headers: authHeaders() });
+      const data = await res.json();
+      const sel = document.getElementById("prod-category");
+      sel.innerHTML = `<option value="">Kategoriya tanlang</option>` +
+        (data.data||[]).map(c => `<option value="${c._id}">${c.name}</option>`).join("");
+    } catch(e) {}
+  }
+
+  function previewProdImage(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById("prod-image-preview");
+      preview.src = e.target.result;
+      preview.classList.remove("hidden");
+      document.getElementById("prod-upload-label").classList.add("hidden");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function createProduct() {
+    const name = document.getElementById("prod-name").value.trim();
+    const desc = document.getElementById("prod-desc").value.trim();
+    const price = document.getElementById("prod-price").value;
+    const category_id = document.getElementById("prod-category").value;
+    const msg = document.getElementById("prod-msg");
+    const imageFile = document.getElementById("prod-image-file").files[0];
+    if (!name || !price || !category_id) { msg.textContent = "Barcha maydonlarni to'ldiring"; return; }
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", Number(price));
+      formData.append("category_id", category_id);
+      formData.append("description", desc);
+      if (imageFile) formData.append("image", imageFile);
+      const res = await fetch(`${BASE}/products`, {
+        method:"POST",
+        headers: { Authorization: `Bearer ${token()}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      document.getElementById("prod-name").value = "";
+      document.getElementById("prod-desc").value = "";
+      document.getElementById("prod-price").value = "";
+      document.getElementById("prod-image-preview").classList.add("hidden");
+      document.getElementById("prod-upload-label").classList.remove("hidden");
+      document.getElementById("prod-image-file").value = "";
+      closeModal("prod-modal");
+      loadProducts();
+    } catch(err) { msg.textContent = err.message; }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm("O'chirilsinmi?")) return;
+    await fetch(`${BASE}/products/${id}`, { method:"DELETE", headers: authHeaders() });
+    loadProducts();
+  }
+
+  async function loadFeedbacks() {
+    const list = document.getElementById("feed-list");
+    const stats = document.getElementById("feed-stats");
+    list.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div></div>`;
+    try {
+      const res = await fetch(`${BASE}/feedback`, { headers: authHeaders() });
+      const data = await res.json();
+      const all = data.data || [];
+      const reviews = all.filter(f => f.type === "review").length;
+      const complaints = all.filter(f => f.type === "complaint").length;
+      stats.innerHTML = `
+        <div class="stat-card"><div class="stat-label">Jami</div><div class="stat-value">${all.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Sharhlar</div><div class="stat-value">${reviews}</div></div>
+        <div class="stat-card"><div class="stat-label">Shikoyatlar</div><div class="stat-value">${complaints}</div></div>
+      `;
+      if (!all.length) { list.innerHTML = `<p class="empty">Feedbacklar yo'q</p>`; return; }
+      list.innerHTML = all.map(f => `
+        <div class="item-card">
+          <div class="item-thumb">${f.type === "review" ? "\u2B50" : "\u26A0\uFE0F"}</div>
+          <div class="item-info">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <span class="badge ${f.type==='review'?'badge-review':'badge-complaint'}">${f.type}</span>
+              <span class="item-name">${f.message}</span>
+            </div>
+            <div class="item-meta">${f.device_info || ""}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-danger" onclick="deleteFeedback('${f._id}')">O'chirish</button>
+          </div>
+        </div>
+      `).join("");
+    } catch(err) { list.innerHTML = `<p class="empty">Xato: ${err.message}</p>`; }
+  }
+
+  async function deleteFeedback(id) {
+    if (!confirm("O'chirilsinmi?")) return;
+    await fetch(`${BASE}/feedback/${id}`, { method:"DELETE", headers: authHeaders() });
+    loadFeedbacks();
+  }
+
+  async function loadMenuData() {
+    try {
+      const [cRes, pRes] = await Promise.all([fetch(`${BASE}/categories`), fetch(`${BASE}/products`)]);
+      categories = (await cRes.json()).data || [];
+      products = (await pRes.json()).data || [];
+      buildMenuSidebar();
+      if (categories.length) selectMenuCat(categories[0]._id, categories[0].name);
+      else document.getElementById("menu-grid").innerHTML = `<p class="empty">Menyu bo'sh</p>`;
+    } catch(err) {
+      document.getElementById("menu-grid").innerHTML = `<p class="empty">Server bilan ulanib bo'lmadi</p>`;
+    }
+  }
+
+  function buildMenuSidebar() {
+    document.getElementById("menu-sidebar").innerHTML = categories.map(c => `
+      <button class="menu-cat-btn" id="mcat-${c._id}" onclick="selectMenuCat('${c._id}','${c.name}')">
+        <span>${getIcon(c.name)}</span> ${c.name}
+      </button>
+    `).join("");
+  }
+
+  function selectMenuCat(id, name) {
+    document.querySelectorAll(".menu-cat-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("mcat-"+id)?.classList.add("active");
+    document.getElementById("menu-section-title").textContent = name;
+    const filtered = products.filter(p => p.category_id?._id===id || p.category_id===id);
+    const grid = document.getElementById("menu-grid");
+    if (!filtered.length) { grid.innerHTML = `<p class="empty">Bu kategoriyada mahsulot yo'q</p>`; return; }
+    grid.innerHTML = filtered.map(p => `
+      <div class="menu-card">
+        <div class="menu-card-img">
+          ${p.image ? `<img src="${IMG_BASE}/${p.image}" alt="${p.name}" />` : getIcon(p.category_id?.name||"")}
+        </div>
+        <div class="menu-card-body">
+          <div class="menu-card-name">${p.name}</div>
+          <div class="menu-card-desc">${p.description || ""}</div>
+          <div class="menu-card-footer">
+            <span class="price-badge">${Number(p.price).toLocaleString()} UZS</span>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function loadProfileData() {
+    const savedAvatar = localStorage.getItem("profile_avatar");
+    const savedName = localStorage.getItem("profile_name") || currentUser?.name || "";
+    const savedPhone = localStorage.getItem("profile_phone") || "";
+    document.getElementById("profile-name-display").textContent = savedName || "-";
+    document.getElementById("profile-email-display").textContent = currentUser?.email || "-";
+    document.getElementById("profile-name-input").value = savedName;
+    document.getElementById("profile-phone-input").value = savedPhone;
+    if (savedAvatar) {
+      document.getElementById("profile-avatar-emoji").style.display = "none";
+      const img = document.getElementById("profile-avatar-img");
+      img.src = savedAvatar; img.style.display = "block";
+    }
+  }
+
+  function uploadProfileAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const src = e.target.result;
+      document.getElementById("profile-avatar-emoji").style.display = "none";
+      const img = document.getElementById("profile-avatar-img");
+      img.src = src; img.style.display = "block";
+      localStorage.setItem("profile_avatar", src);
+      updateNavAvatar(src);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveProfile() {
+    const name = document.getElementById("profile-name-input").value.trim();
+    const phone = document.getElementById("profile-phone-input").value.trim();
+    const msg = document.getElementById("profile-msg");
+    localStorage.setItem("profile_name", name);
+    localStorage.setItem("profile_phone", phone);
+    document.getElementById("profile-name-display").textContent = name || "-";
+    msg.className = "msg success";
+    msg.textContent = "Saqlandi";
+    setTimeout(() => msg.textContent = "", 2500);
+  }
+
+  function setFeedType(type) {
+    feedbackType = type;
+    document.getElementById("type-review").classList.toggle("active", type === "review");
+    document.getElementById("type-complaint").classList.toggle("active", type === "complaint");
+  }
+
+  async function submitFeedback() {
+    const message = document.getElementById("feed-message").value.trim();
+    const msg = document.getElementById("feed-msg");
+    if (!message) { msg.className="msg"; msg.textContent="Xabar kiriting"; return; }
+    try {
+      const res = await fetch(`${BASE}/feedback`, {
+        method:"POST", headers: authHeaders(),
+        body: JSON.stringify({ type: feedbackType, message })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      document.getElementById("feed-message").value = "";
+      msg.className = "msg success";
+      msg.textContent = "Fikringiz yuborildi! Rahmat";
+      setTimeout(() => msg.textContent = "", 3000);
+    } catch(err) { msg.className = "msg"; msg.textContent = err.message; }
+  }
+
+  if (localStorage.getItem("token")) {
+    initApp();
+  } else {
+    // Viewer — login qilmagan, faqat menyuni ko'rsin
+    initApp();
+  }
+</script>
+</body>
+</html>
