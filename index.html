@@ -152,8 +152,8 @@
     .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
     .menu-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;animation:fadeIn .2s ease;display:flex;flex-direction:column;cursor:pointer}
     .menu-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#d4d4d8}
-    .menu-card-img{width:100%;padding-top:75%;background:#f4f4f5;overflow:hidden;position:relative;flex-shrink:0}
-    .menu-card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
+    .menu-card-img{width:100%;padding-top:75%;background:#f0f0f0;overflow:hidden;position:relative;flex-shrink:0}
+    .menu-card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;background:#f0f0f0}
     .menu-card-img .emoji-icon{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px}
     .menu-card-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
     .menu-card-name{font-size:14px;font-weight:700}
@@ -439,7 +439,10 @@
         </div>
       </div>
       <div id="admin-feedbacks" class="hidden">
-        <div class="content-header"><h2>&#128172; Feedbacklar</h2></div>
+        <div class="content-header">
+          <h2>&#128172; Feedbacklar</h2>
+          <button class="btn btn-danger" onclick="confirmDeleteAllFeedbacks()" id="delete-all-fb-btn" style="display:none">&#128465; Hammasini o'chirish</button>
+        </div>
         <div class="content-body">
           <div id="feed-stats" class="stats-row"></div>
           <div class="section-label">Barcha feedbacklar</div>
@@ -1111,7 +1114,12 @@
         '<div class="stat-card"><div class="stat-label">&#11088; Sharhlar</div><div class="stat-value" style="color:var(--green)">'+reviews+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+reviewPct+'% ijobiy</div></div>'+
         '<div class="stat-card"><div class="stat-label">&#9888; Shikoyatlar</div><div class="stat-value" style="color:var(--red)">'+complaints+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+complaintPct+'% salbiy</div></div>';
 
-      if (!all.length){list.innerHTML='<div class="empty"><div class="empty-icon">&#128172;</div><p>Feedbacklar yo\'q</p></div>';return;}
+      if (!all.length){
+        list.innerHTML='<div class="empty"><div class="empty-icon">&#128172;</div><p>Feedbacklar yo\'q</p></div>';
+        document.getElementById("delete-all-fb-btn").style.display="none";
+        return;
+      }
+      document.getElementById("delete-all-fb-btn").style.display="";
 
       list.style.display="flex";
       list.style.flexDirection="column";
@@ -1150,6 +1158,19 @@
   async function deleteFeedback(id) {
     await fetch(BASE+"/feedback/"+id,{method:"DELETE",headers:authHeaders()});
     loadFeedbacks(); toast("Feedback o'chirildi","error");
+  }
+  function confirmDeleteAllFeedbacks() {
+    confirmAction("Barcha feedbacklarni o'chirish","Bu amalni ortga qaytarib bo'lmaydi. Barcha feedbacklar o'chiriladi!",deleteAllFeedbacks);
+  }
+  async function deleteAllFeedbacks() {
+    try {
+      const res = await fetch(BASE+"/feedback",{headers:authHeaders()});
+      const data = await res.json();
+      const all = data.data||[];
+      await Promise.all(all.map(f=>fetch(BASE+"/feedback/"+f._id,{method:"DELETE",headers:authHeaders()})));
+      loadFeedbacks();
+      toast("Barcha feedbacklar o'chirildi","error");
+    } catch(err){ toast("Xato: "+err.message,"error"); }
   }
 
   // ===== USER MENU =====
