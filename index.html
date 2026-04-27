@@ -152,14 +152,24 @@
     .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
     .menu-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;animation:fadeIn .2s ease;display:flex;flex-direction:column;cursor:pointer}
     .menu-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#d4d4d8}
-    .menu-card-img{width:100%;aspect-ratio:4/3;background:#f4f4f5;overflow:hidden;position:relative;flex-shrink:0}
+    .menu-card-img{width:100%;padding-top:75%;background:#f4f4f5;overflow:hidden;position:relative;flex-shrink:0}
     .menu-card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
-    .menu-card-img .emoji-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px}
+    .menu-card-img .emoji-icon{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:52px}
     .menu-card-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
     .menu-card-name{font-size:14px;font-weight:700}
     .menu-card-desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1}
     .menu-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
-    /* RATING STARS */
+    /* FEEDBACK CARD (admin) */
+    .fb-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;flex-direction:column;gap:8px;transition:all .18s;animation:fadeIn .2s ease}
+    .fb-card:hover{box-shadow:var(--shadow-md);border-color:#d4d4d8}
+    .fb-card-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .fb-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .fb-badge.review{background:var(--green-light);color:var(--green)}
+    .fb-badge.complaint{background:var(--red-light);color:var(--red)}
+    .fb-time{font-size:11px;color:var(--muted-light);margin-left:auto}
+    .fb-message{font-size:13px;color:var(--text);line-height:1.5;word-break:break-word}
+    .fb-device{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+    .fb-actions{display:flex;justify-content:flex-end}
     .stars{display:flex;gap:2px;align-items:center}
     .star{font-size:16px;cursor:pointer;color:#d4d4d8;transition:color .15s;line-height:1}
     .star.filled{color:#f59e0b}
@@ -286,7 +296,7 @@
       /* MENU CARDS 2 col */
       .menu-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
       .menu-card{border-radius:12px!important}
-      .menu-card-img{aspect-ratio:4/3!important;height:auto!important}
+      .menu-card-img{padding-top:75%!important;height:auto!important}
       .menu-card-body{padding:10px!important;gap:3px!important}
       .menu-card-name{font-size:13px!important;font-weight:700}
       .menu-card-desc{
@@ -340,7 +350,7 @@
     @media(max-width:400px){
       /* 1 col on very small phones */
       .menu-grid{grid-template-columns:1fr!important}
-      .menu-card-img{aspect-ratio:16/9!important;height:auto!important}
+      .menu-card-img{padding-top:56.25%!important;height:auto!important}
       .stats-row{grid-template-columns:1fr 1fr!important}
       .nav-pill{padding:5px 9px;font-size:10px}
       .menu-top .btn-outline{width:100%!important;justify-content:center!important}
@@ -1093,24 +1103,45 @@
       const all=data.data||[];
       const reviews=all.filter(f=>f.type==="review").length;
       const complaints=all.filter(f=>f.type==="complaint").length;
+      const reviewPct = all.length ? Math.round(reviews/all.length*100) : 0;
+      const complaintPct = all.length ? Math.round(complaints/all.length*100) : 0;
+
       stats.innerHTML=
         '<div class="stat-card"><div class="stat-label">Jami</div><div class="stat-value">'+all.length+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Sharhlar</div><div class="stat-value">'+reviews+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Shikoyatlar</div><div class="stat-value">'+complaints+'</div></div>';
+        '<div class="stat-card"><div class="stat-label">&#11088; Sharhlar</div><div class="stat-value" style="color:var(--green)">'+reviews+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+reviewPct+'% ijobiy</div></div>'+
+        '<div class="stat-card"><div class="stat-label">&#9888; Shikoyatlar</div><div class="stat-value" style="color:var(--red)">'+complaints+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+complaintPct+'% salbiy</div></div>';
+
       if (!all.length){list.innerHTML='<div class="empty"><div class="empty-icon">&#128172;</div><p>Feedbacklar yo\'q</p></div>';return;}
-      list.innerHTML=all.map(f=>
-        '<div class="item-card">'+
-          '<div class="item-thumb">'+(f.type==="review"?"&#11088;":"&#9888;")+'</div>'+
-          '<div class="item-info">'+
-            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
-              '<span class="badge '+(f.type==="review"?"badge-review":"badge-complaint")+'">'+f.type+'</span>'+
-              '<span class="item-name" style="font-size:13px">'+f.message+'</span>'+
-            '</div>'+
-            '<div class="item-meta">'+(f.device_info||"")+'</div>'+
+
+      list.style.display="flex";
+      list.style.flexDirection="column";
+      list.style.gap="10px";
+
+      list.innerHTML=all.map(f=>{
+        const date = new Date(f.createdAt);
+        const timeStr = date.toLocaleDateString("uz-UZ",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+date.toLocaleTimeString("uz-UZ",{hour:"2-digit",minute:"2-digit"});
+        // Qurilma turini aniqlash
+        const ua = f.device_info||"";
+        let deviceIcon = "&#128187;"; // desktop
+        let deviceName = "Kompyuter";
+        if (/iPhone|iPad/i.test(ua)) { deviceIcon="&#127820;"; deviceName="iPhone/iPad"; }
+        else if (/Android/i.test(ua)) { deviceIcon="&#128241;"; deviceName="Android"; }
+        else if (/Mobile/i.test(ua)) { deviceIcon="&#128241;"; deviceName="Mobil"; }
+        else if (/Windows/i.test(ua)) { deviceIcon="&#128187;"; deviceName="Windows"; }
+        else if (/Mac/i.test(ua)) { deviceIcon="&#128187;"; deviceName="Mac"; }
+
+        return '<div class="fb-card">'+
+          '<div class="fb-card-top">'+
+            '<span class="fb-badge '+(f.type==="review"?"review":"complaint")+'">'+(f.type==="review"?"&#11088; Sharh":"&#9888; Shikoyat")+'</span>'+
+            '<span class="fb-time">&#128336; '+timeStr+'</span>'+
           '</div>'+
-          '<div class="item-actions"><button class="btn btn-danger btn-sm" onclick="confirmDeleteFeedback(\''+f._id+'\')">O\'chirish</button></div>'+
-        '</div>'
-      ).join("");
+          '<div class="fb-message">"'+f.message+'"</div>'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">'+
+            '<div class="fb-device">'+deviceIcon+' '+deviceName+'<span style="color:#d4d4d8;margin:0 4px">|</span><span style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+ua+'">'+ua.slice(0,60)+(ua.length>60?"...":"")+'</span></div>'+
+            '<button class="btn btn-danger btn-sm" onclick="confirmDeleteFeedback(\''+f._id+'\')">&#128465; O\'chirish</button>'+
+          '</div>'+
+        '</div>';
+      }).join("");
     } catch(err){list.innerHTML='<div class="empty"><p>Xato: '+err.message+'</p></div>';}
   }
   function confirmDeleteFeedback(id) {
@@ -1347,28 +1378,54 @@
       const res = await fetch(BASE+"/ratings/stats", {headers:authHeaders()});
       const data = await res.json();
       const all = data.data || [];
+
       const totalVotes = all.reduce((s,r)=>s+r.count, 0);
       const topRated = all[0];
-      const lowRated = all[all.length-1];
+      const lowRated = all.length > 1 ? all[all.length-1] : null;
+      // 4+ yulduz = ijobiy, 1-2 = salbiy
+      const positiveVotes = all.reduce((s,r)=>s+(r.avg>=4?r.count:0),0);
+      const negativeVotes = all.reduce((s,r)=>s+(r.avg<=2?r.count:0),0);
+      const positivePct = totalVotes ? Math.round(positiveVotes/totalVotes*100) : 0;
+      const negativePct = totalVotes ? Math.round(negativeVotes/totalVotes*100) : 0;
+
       stats.innerHTML =
         '<div class="stat-card"><div class="stat-label">Jami ovoz</div><div class="stat-value">'+totalVotes+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Eng yuqori</div><div class="stat-value" style="font-size:14px;padding-top:4px">'+(topRated?topRated.name+' ('+topRated.avg+'&#11088;)':'—')+'</div></div>'+
-        '<div class="stat-card"><div class="stat-label">Eng past</div><div class="stat-value" style="font-size:14px;padding-top:4px">'+(lowRated&&lowRated!==topRated?lowRated.name+' ('+lowRated.avg+'&#11088;)':'—')+'</div></div>';
+        '<div class="stat-card"><div class="stat-label">&#128200; Ijobiy</div><div class="stat-value" style="color:var(--green)">'+positivePct+'%</div><div style="font-size:11px;color:var(--muted)">'+positiveVotes+' ovoz (4-5&#11088;)</div></div>'+
+        '<div class="stat-card"><div class="stat-label">&#128201; Salbiy</div><div class="stat-value" style="color:var(--red)">'+negativePct+'%</div><div style="font-size:11px;color:var(--muted)">'+negativeVotes+' ovoz (1-2&#11088;)</div></div>'+
+        (topRated?'<div class="stat-card"><div class="stat-label">&#129351; Eng yaxshi</div><div class="stat-value" style="font-size:13px;padding-top:4px">'+topRated.name+'</div><div style="font-size:11px;color:var(--muted)">'+topRated.avg+'&#11088; · '+topRated.count+' ovoz</div></div>':'')+
+        (lowRated?'<div class="stat-card"><div class="stat-label">&#128197; Talab kam</div><div class="stat-value" style="font-size:13px;padding-top:4px">'+lowRated.name+'</div><div style="font-size:11px;color:var(--muted)">'+lowRated.avg+'&#11088; · '+lowRated.count+' ovoz</div></div>':'');
+
       if (!all.length) { list.innerHTML='<div class="empty"><div class="empty-icon">&#11088;</div><p>Hali reyting yo\'q</p></div>'; return; }
+
+      list.style.display="flex";
+      list.style.flexDirection="column";
+      list.style.gap="10px";
+
       list.innerHTML = all.map((r,i) => {
         const pct = Math.round((r.avg/5)*100);
+        // Backend dan kelgan haqiqiy foizlar
+        const posP = r.positivePct !== undefined ? r.positivePct : Math.round((r.avg>=4?100:r.avg>=3?60:r.avg>=2?30:10));
+        const negP = r.negativePct !== undefined ? r.negativePct : 100-posP;
         const medal = i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':'';
-        return '<div class="item-card">'+
-          '<div class="item-thumb" style="font-size:22px;background:#fff8e1">'+(r.image?'<img src="'+IMG_BASE+'/'+r.image+'"/>':medal||'&#127869;')+'</div>'+
-          '<div class="item-info">'+
-            '<div class="item-name">'+(medal?medal+' ':'')+r.name+'</div>'+
-            '<div style="margin-top:4px">'+
-              '<div class="rating-bar">'+
-                '<span class="rating-bar-label">'+r.avg+'</span>'+
-                '<div class="rating-bar-track"><div class="rating-bar-fill" style="width:'+pct+'%"></div></div>'+
-                '<span style="font-size:11px;color:var(--muted);margin-left:4px">'+r.count+' ovoz</span>'+
+        const trendColor = r.avg>=4?'var(--green)':r.avg>=3?'#f59e0b':'var(--red)';
+
+        return '<div class="fb-card" style="flex-direction:row;align-items:center;gap:12px">'+
+          '<div class="item-thumb" style="font-size:20px;background:#fff8e1;flex-shrink:0">'+(r.image?'<img src="'+IMG_BASE+'/'+r.image+'"/>':medal||'&#127869;')+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+              '<span style="font-size:13px;font-weight:700">'+(medal?medal+' ':''+(i+1)+'. ')+r.name+'</span>'+
+              '<span style="font-size:12px;font-weight:800;color:'+trendColor+'">'+r.avg+'&#11088;</span>'+
+            '</div>'+
+            '<div class="rating-bar">'+
+              '<span class="rating-bar-label" style="color:var(--green);font-size:10px">+'+posP+'%</span>'+
+              '<div class="rating-bar-track">'+
+                '<div class="rating-bar-fill" style="width:'+pct+'%;background:'+trendColor+'"></div>'+
               '</div>'+
-              [1,2,3,4,5].map(s=>'<span class="star '+(s<=Math.round(r.avg)?'filled':'')+'" style="font-size:14px">&#9733;</span>').join("")+
+              '<span style="font-size:10px;color:var(--muted)">'+r.count+' ovoz</span>'+
+            '</div>'+
+            '<div style="display:flex;gap:8px;font-size:11px;color:var(--muted);margin-top:2px">'+
+              '<span style="color:var(--green)">&#128200; Ijobiy: '+posP+'%</span>'+
+              '<span style="color:var(--red)">&#128201; Salbiy: '+negP+'%</span>'+
             '</div>'+
           '</div>'+
         '</div>';
