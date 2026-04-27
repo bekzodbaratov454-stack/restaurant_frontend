@@ -149,15 +149,37 @@
     .search-wrap{position:relative;flex:1;max-width:280px}
     .search-wrap input{padding-left:36px;border-radius:50px;font-size:13px}
     .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none}
-    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-    .menu-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;animation:fadeIn .2s ease;display:flex;flex-direction:column;cursor:default}
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .menu-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;animation:fadeIn .2s ease;display:flex;flex-direction:column;cursor:pointer}
     .menu-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);border-color:#d4d4d8}
-    .menu-card-img{height:170px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;font-size:52px;overflow:hidden;position:relative;flex-shrink:0}
+    .menu-card-img{width:100%;aspect-ratio:4/3;background:#f4f4f5;overflow:hidden;position:relative;flex-shrink:0}
     .menu-card-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
+    .menu-card-img .emoji-icon{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px}
     .menu-card-body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:4px}
     .menu-card-name{font-size:14px;font-weight:700}
     .menu-card-desc{font-size:12px;color:var(--muted);line-height:1.5;flex:1}
     .menu-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+    /* RATING STARS */
+    .stars{display:flex;gap:2px;align-items:center}
+    .star{font-size:16px;cursor:pointer;color:#d4d4d8;transition:color .15s;line-height:1}
+    .star.filled{color:#f59e0b}
+    .star:hover,.star.hover{color:#f59e0b}
+    .rating-count{font-size:11px;color:var(--muted);margin-left:4px}
+    .rating-avg{font-size:12px;font-weight:700;color:#f59e0b;margin-left:2px}
+    /* PAGINATION */
+    .pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap}
+    .page-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--white);color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center}
+    .page-btn:hover{border-color:var(--red);color:var(--red)}
+    .page-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+    .page-btn:disabled{opacity:.4;cursor:not-allowed}
+    /* RATING MODAL */
+    .rating-modal-stars{display:flex;gap:8px;justify-content:center;margin:8px 0}
+    .rating-modal-stars .star{font-size:36px;cursor:pointer}
+    /* ADMIN RATING STATS */
+    .rating-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .rating-bar-label{font-size:12px;color:var(--muted);width:20px;text-align:right;flex-shrink:0}
+    .rating-bar-track{flex:1;height:8px;background:#f4f4f5;border-radius:50px;overflow:hidden}
+    .rating-bar-fill{height:100%;background:#f59e0b;border-radius:50px;transition:width .4s}
     /* PROFILE */
     .profile-page{max-width:580px;margin:0 auto;padding:24px 20px}
     .profile-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:24px;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -264,7 +286,7 @@
       /* MENU CARDS 2 col */
       .menu-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
       .menu-card{border-radius:12px!important}
-      .menu-card-img{height:130px!important}
+      .menu-card-img{aspect-ratio:4/3!important;height:auto!important}
       .menu-card-body{padding:10px!important;gap:3px!important}
       .menu-card-name{font-size:13px!important;font-weight:700}
       .menu-card-desc{
@@ -276,6 +298,7 @@
       }
       .menu-card-footer{margin-top:8px!important;padding-top:8px!important}
       .menu-card-footer .price-badge{font-size:11px!important;padding:4px 9px!important}
+      .star{font-size:13px!important}
 
       /* PROFILE */
       .profile-page{padding:12px!important}
@@ -317,7 +340,7 @@
     @media(max-width:400px){
       /* 1 col on very small phones */
       .menu-grid{grid-template-columns:1fr!important}
-      .menu-card-img{height:180px!important}
+      .menu-card-img{aspect-ratio:16/9!important;height:auto!important}
       .stats-row{grid-template-columns:1fr 1fr!important}
       .nav-pill{padding:5px 9px;font-size:10px}
       .menu-top .btn-outline{width:100%!important;justify-content:center!important}
@@ -413,6 +436,14 @@
           <div id="feed-list" class="card-grid"></div>
         </div>
       </div>
+      <div id="admin-ratings" class="hidden">
+        <div class="content-header"><h2>&#11088; Reyting statistikasi</h2></div>
+        <div class="content-body">
+          <div id="rating-stats" class="stats-row"></div>
+          <div class="section-label">Mahsulotlar reytingi (yuqoridan pastga)</div>
+          <div id="rating-list" class="card-grid"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -470,7 +501,10 @@
               <button class="type-btn complaint" id="type-complaint" onclick="setFeedType('complaint')">&#9888; Shikoyat</button>
             </div>
           </div>
-          <div class="input-group"><label>Xabar</label><textarea id="feed-message" placeholder="Fikringizni yozing..."></textarea></div>
+          <div class="input-group">
+            <label>Xabar <span id="feed-char-count" style="color:var(--muted);font-weight:400">0/250</span></label>
+            <textarea id="feed-message" placeholder="Fikringizni yozing..." maxlength="250" oninput="updateCharCount(this)"></textarea>
+          </div>
           <button class="btn btn-red" onclick="submitFeedback()" style="align-self:flex-start">Yuborish</button>
           <div id="feed-msg" class="msg"></div>
         </div>
@@ -544,6 +578,25 @@
     </div>
   </div>
 </div>
+<!-- Rating modal (user) -->
+<div id="rating-modal" class="modal hidden">
+  <div class="modal-box" style="max-width:340px;text-align:center">
+    <div class="modal-header" style="justify-content:space-between">
+      <h3>&#11088; Reyting qo'ying</h3>
+      <button class="modal-close" onclick="closeModal('rating-modal')">&#10005;</button>
+    </div>
+    <div id="rating-modal-product-name" style="font-size:14px;color:var(--muted);margin-bottom:4px"></div>
+    <div class="rating-modal-stars" id="rating-modal-stars"></div>
+    <div id="rating-modal-hint" style="font-size:12px;color:var(--muted);min-height:18px"></div>
+    <input type="hidden" id="rating-modal-product-id"/>
+    <div class="modal-actions" style="justify-content:center;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal('rating-modal')">Bekor</button>
+      <button class="btn btn-red" onclick="submitRating()">Yuborish</button>
+    </div>
+    <div id="rating-msg" class="msg" style="text-align:center"></div>
+  </div>
+</div>
+
 <div id="confirm-modal" class="modal hidden">
   <div class="modal-box confirm-box">
     <div class="confirm-icon">&#128465;</div>
@@ -778,7 +831,8 @@
     document.getElementById("nav-center").innerHTML =
       '<button class="nav-pill active" id="nav-categories" onclick="showAdminSection(\'categories\')">&#128203; Kategoriyalar</button>'+
       '<button class="nav-pill" id="nav-products" onclick="showAdminSection(\'products\')">&#127831; Mahsulotlar</button>'+
-      '<button class="nav-pill" id="nav-feedbacks" onclick="showAdminSection(\'feedbacks\')">&#128172; Feedbacklar</button>';
+      '<button class="nav-pill" id="nav-feedbacks" onclick="showAdminSection(\'feedbacks\')">&#128172; Feedbacklar</button>'+
+      '<button class="nav-pill" id="nav-ratings" onclick="showAdminSection(\'ratings\')">&#11088; Reyting</button>';
   }
   function buildUserNav() {
     const fb = currentUser
@@ -800,14 +854,15 @@
     const items = [
       {key:"categories",icon:"&#128203;",label:"Kategoriyalar"},
       {key:"products",icon:"&#127831;",label:"Mahsulotlar"},
-      {key:"feedbacks",icon:"&#128172;",label:"Feedbacklar"}
+      {key:"feedbacks",icon:"&#128172;",label:"Feedbacklar"},
+      {key:"ratings",icon:"&#11088;",label:"Reyting"}
     ];
     document.getElementById("admin-sidebar").innerHTML = items.map(i=>
       '<button class="sidebar-item" id="side-'+i.key+'" onclick="showAdminSection(\''+i.key+'\')"><span class="sidebar-icon">'+i.icon+'</span>'+i.label+'</button>'
     ).join("");
   }
   function showAdminSection(name) {
-    ["categories","products","feedbacks"].forEach(s=>{
+    ["categories","products","feedbacks","ratings"].forEach(s=>{
       hide("admin-"+s);
       document.getElementById("side-"+s)?.classList.remove("active");
       document.getElementById("nav-"+s)?.classList.remove("active");
@@ -818,6 +873,7 @@
     if (name==="categories") loadCategories();
     if (name==="products") loadProducts();
     if (name==="feedbacks") loadFeedbacks();
+    if (name==="ratings") loadRatingStats();
   }
   function showUserSection(name) {
     ["menu","profile","feedback"].forEach(s=>hide("user-"+s));
@@ -1071,6 +1127,8 @@
       const [cRes,pRes]=await Promise.all([fetch(BASE+"/categories"),fetch(BASE+"/products")]);
       categories=(await cRes.json()).data||[];
       products=(await pRes.json()).data||[];
+      // Reytinglarni yuklash
+      await loadRatingsForProducts(products);
       buildMenuSidebar();
       if (categories.length) selectMenuCat(categories[0]._id,categories[0].name);
       else document.getElementById("menu-grid").innerHTML='<div class="empty"><p>Menyu bo\'sh</p></div>';
@@ -1104,36 +1162,250 @@
     }
     renderMenuProducts(filtered);
   }
+  // ===== DEVICE ID =====
+  function getDeviceId() {
+    let id = localStorage.getItem("device_id");
+    if (!id) {
+      id = "dev_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem("device_id", id);
+    }
+    return id;
+  }
+
+  // ===== CHAR COUNT =====
+  function updateCharCount(el) {
+    const count = el.value.length;
+    const span = document.getElementById("feed-char-count");
+    if (span) {
+      span.textContent = count+"/250";
+      span.style.color = count > 220 ? "var(--red)" : "var(--muted)";
+    }
+  }
+
+  // ===== PAGINATION =====
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let currentFilteredProducts = [];
+
   function renderMenuProducts(list) {
-    const grid=document.getElementById("menu-grid");
-    if (!list.length){grid.innerHTML='<div class="empty"><div class="empty-icon">&#128269;</div><p>Mahsulot topilmadi</p></div>';return;}
-    grid.innerHTML=list.map(p=>
-      '<div class="menu-card" onclick="openProductDetail(\''+p._id+'\')" style="cursor:pointer">'+
-        '<div class="menu-card-img">'+(p.image?'<img src="'+IMG_BASE+'/'+p.image+'" alt="'+p.name+'"/>':getIcon(p.category_id?.name||""))+'</div>'+
+    currentFilteredProducts = list;
+    currentPage = 1;
+    renderPage();
+  }
+
+  function renderPage() {
+    const grid = document.getElementById("menu-grid");
+    if (!currentFilteredProducts.length) {
+      grid.innerHTML = '<div class="empty"><div class="empty-icon">&#128269;</div><p>Mahsulot topilmadi</p></div>';
+      return;
+    }
+    const total = currentFilteredProducts.length;
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = currentFilteredProducts.slice(start, start + PAGE_SIZE);
+
+    const myRatings = JSON.parse(localStorage.getItem("my_ratings") || "{}");
+
+    grid.innerHTML = pageItems.map(p => {
+      const rid = p._id;
+      const ratingData = window._ratings && window._ratings[rid];
+      const avg = ratingData ? ratingData.avg : 0;
+      const count = ratingData ? ratingData.count : 0;
+      const myScore = myRatings[rid] || 0;
+      const starsHtml = [1,2,3,4,5].map(i =>
+        '<span class="star '+(i<=Math.round(avg)?'filled':'')+'" style="font-size:14px">&#9733;</span>'
+      ).join("");
+      return '<div class="menu-card" onclick="openProductDetail(\''+rid+'\')" style="cursor:pointer">'+
+        '<div class="menu-card-img">'+(p.image?'<img src="'+IMG_BASE+'/'+p.image+'" alt="'+p.name+'"/>':'<div class="emoji-icon">'+getIcon(p.category_id?.name||"")+'</div>')+'</div>'+
         '<div class="menu-card-body">'+
           '<div class="menu-card-name">'+p.name+'</div>'+
           (p.description?'<div class="menu-card-desc">'+p.description+'</div>':'')+
           '<div class="menu-card-footer">'+
             '<span class="price-badge">'+Number(p.price).toLocaleString()+' UZS</span>'+
+            '<div style="display:flex;align-items:center;gap:4px" onclick="event.stopPropagation();openRatingModal(\''+rid+'\',\''+p.name.replace(/'/g,"\\'")+'\')" title="Reyting qo\'ying">'+
+              starsHtml+
+              (count?'<span class="rating-count">'+avg+'</span>':'')+
+            '</div>'+
           '</div>'+
         '</div>'+
-      '</div>'
+      '</div>';
+    }).join("");
+
+    // Pagination
+    if (totalPages > 1) {
+      let pag = '<div class="pagination">';
+      pag += '<button class="page-btn" onclick="goPage('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>&#8249;</button>';
+      for (let i=1; i<=totalPages; i++) {
+        if (i===1 || i===totalPages || Math.abs(i-currentPage)<=1) {
+          pag += '<button class="page-btn'+(i===currentPage?' active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+        } else if (Math.abs(i-currentPage)===2) {
+          pag += '<span style="color:var(--muted);padding:0 2px">...</span>';
+        }
+      }
+      pag += '<button class="page-btn" onclick="goPage('+(currentPage+1)+')" '+(currentPage===totalPages?'disabled':'')+'>&#8250;</button>';
+      pag += '</div>';
+      grid.insertAdjacentHTML("afterend", pag);
+    } else {
+      const old = document.querySelector(".pagination");
+      if (old) old.remove();
+    }
+  }
+
+  function goPage(n) {
+    const total = Math.ceil(currentFilteredProducts.length / PAGE_SIZE);
+    if (n < 1 || n > total) return;
+    currentPage = n;
+    const old = document.querySelector(".pagination");
+    if (old) old.remove();
+    renderPage();
+    document.getElementById("menu-grid").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  // ===== RATINGS =====
+  window._ratings = {};
+
+  async function loadRatingsForProducts(prods) {
+    // Barcha mahsulotlar reytingini parallel yuklash
+    await Promise.all(prods.map(async p => {
+      try {
+        const res = await fetch(BASE+"/ratings/product/"+p._id);
+        const data = await res.json();
+        if (data.success) window._ratings[p._id] = data.data;
+      } catch(e) {}
+    }));
+  }
+
+  function openRatingModal(productId, productName) {
+    const myRatings = JSON.parse(localStorage.getItem("my_ratings") || "{}");
+    const myScore = myRatings[productId] || 0;
+    document.getElementById("rating-modal-product-id").value = productId;
+    document.getElementById("rating-modal-product-name").textContent = productName;
+    document.getElementById("rating-msg").textContent = "";
+    renderRatingStars(myScore, productId);
+    openModal("rating-modal");
+  }
+
+  let selectedRatingScore = 0;
+  function renderRatingStars(selected, productId) {
+    selectedRatingScore = selected;
+    const hints = ["","Yomon","Qoniqarsiz","O'rtacha","Yaxshi","A'lo!"];
+    const container = document.getElementById("rating-modal-stars");
+    container.innerHTML = [1,2,3,4,5].map(i =>
+      '<span class="star '+(i<=selected?'filled':'')+'" '+
+      'onmouseover="hoverRatingStar('+i+')" '+
+      'onmouseout="hoverRatingStar('+selectedRatingScore+')" '+
+      'onclick="selectRatingStar('+i+',\''+productId+'\')" '+
+      'style="font-size:36px;cursor:pointer">&#9733;</span>'
     ).join("");
+    document.getElementById("rating-modal-hint").textContent = hints[selected] || "Yulduz tanlang";
+  }
+
+  function hoverRatingStar(n) {
+    const hints = ["","Yomon","Qoniqarsiz","O'rtacha","Yaxshi","A'lo!"];
+    document.querySelectorAll("#rating-modal-stars .star").forEach((s,i) => {
+      s.classList.toggle("filled", i < n);
+    });
+    document.getElementById("rating-modal-hint").textContent = hints[n] || "";
+  }
+
+  function selectRatingStar(n, productId) {
+    selectedRatingScore = n;
+    renderRatingStars(n, productId);
+  }
+
+  async function submitRating() {
+    const productId = document.getElementById("rating-modal-product-id").value;
+    const msg = document.getElementById("rating-msg");
+    if (!selectedRatingScore) { msg.textContent = "Yulduz tanlang"; return; }
+    try {
+      const res = await fetch(BASE+"/ratings", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ product_id: productId, score: selectedRatingScore, device_id: getDeviceId() })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      // Saqlash
+      const myRatings = JSON.parse(localStorage.getItem("my_ratings") || "{}");
+      myRatings[productId] = selectedRatingScore;
+      localStorage.setItem("my_ratings", JSON.stringify(myRatings));
+      window._ratings[productId] = data.data;
+      closeModal("rating-modal");
+      toast("Reytingingiz saqlandi! &#11088;");
+      // Kartochkani yangilash
+      const old = document.querySelector(".pagination");
+      if (old) old.remove();
+      renderPage();
+    } catch(err) { msg.textContent = err.message; }
+  }
+
+  // ===== ADMIN RATING STATS =====
+  async function loadRatingStats() {
+    const list = document.getElementById("rating-list");
+    const stats = document.getElementById("rating-stats");
+    list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+    try {
+      const res = await fetch(BASE+"/ratings/stats", {headers:authHeaders()});
+      const data = await res.json();
+      const all = data.data || [];
+      const totalVotes = all.reduce((s,r)=>s+r.count, 0);
+      const topRated = all[0];
+      const lowRated = all[all.length-1];
+      stats.innerHTML =
+        '<div class="stat-card"><div class="stat-label">Jami ovoz</div><div class="stat-value">'+totalVotes+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">Eng yuqori</div><div class="stat-value" style="font-size:14px;padding-top:4px">'+(topRated?topRated.name+' ('+topRated.avg+'&#11088;)':'—')+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">Eng past</div><div class="stat-value" style="font-size:14px;padding-top:4px">'+(lowRated&&lowRated!==topRated?lowRated.name+' ('+lowRated.avg+'&#11088;)':'—')+'</div></div>';
+      if (!all.length) { list.innerHTML='<div class="empty"><div class="empty-icon">&#11088;</div><p>Hali reyting yo\'q</p></div>'; return; }
+      list.innerHTML = all.map((r,i) => {
+        const pct = Math.round((r.avg/5)*100);
+        const medal = i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':'';
+        return '<div class="item-card">'+
+          '<div class="item-thumb" style="font-size:22px;background:#fff8e1">'+(r.image?'<img src="'+IMG_BASE+'/'+r.image+'"/>':medal||'&#127869;')+'</div>'+
+          '<div class="item-info">'+
+            '<div class="item-name">'+(medal?medal+' ':'')+r.name+'</div>'+
+            '<div style="margin-top:4px">'+
+              '<div class="rating-bar">'+
+                '<span class="rating-bar-label">'+r.avg+'</span>'+
+                '<div class="rating-bar-track"><div class="rating-bar-fill" style="width:'+pct+'%"></div></div>'+
+                '<span style="font-size:11px;color:var(--muted);margin-left:4px">'+r.count+' ovoz</span>'+
+              '</div>'+
+              [1,2,3,4,5].map(s=>'<span class="star '+(s<=Math.round(r.avg)?'filled':'')+'" style="font-size:14px">&#9733;</span>').join("")+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      }).join("");
+    } catch(err) { list.innerHTML='<div class="empty"><p>Xato: '+err.message+'</p></div>'; }
   }
 
   function openProductDetail(id) {
     const p = products.find(x=>x._id===id);
     if (!p) return;
+    const ratingData = window._ratings[id];
+    const avg = ratingData ? ratingData.avg : 0;
+    const count = ratingData ? ratingData.count : 0;
+    const myRatings = JSON.parse(localStorage.getItem("my_ratings") || "{}");
+    const myScore = myRatings[id] || 0;
     const imgWrap = document.getElementById("pd-img");
     if (p.image) {
       imgWrap.innerHTML = '<button class="modal-close" onclick="closeModal(\'product-detail-modal\')" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.9)">&#10005;</button><img src="'+IMG_BASE+'/'+p.image+'" style="width:100%;height:100%;object-fit:cover;display:block"/>';
     } else {
-      imgWrap.innerHTML = '<button class="modal-close" onclick="closeModal(\'product-detail-modal\')" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.9)">&#10005;</button>'+getIcon(p.category_id?.name||"");
+      imgWrap.innerHTML = '<button class="modal-close" onclick="closeModal(\'product-detail-modal\')" style="position:absolute;top:12px;right:12px;z-index:2;background:rgba(255,255,255,.9)">&#10005;</button><div style="font-size:64px">'+getIcon(p.category_id?.name||"")+'</div>';
     }
     document.getElementById("pd-name").textContent = p.name;
     document.getElementById("pd-cat").textContent = p.category_id?.name || "";
     document.getElementById("pd-price").textContent = Number(p.price).toLocaleString()+" UZS";
-    document.getElementById("pd-desc").textContent = p.description || "Tavsif mavjud emas";
+    document.getElementById("pd-desc").textContent = p.description || "";
+    // Eski reyting divni tozalash
+    const oldRating = document.getElementById("pd-rating");
+    if (oldRating) oldRating.remove();
+    // Reyting qismi
+    const starsHtml = [1,2,3,4,5].map(i=>'<span class="star '+(i<=Math.round(avg)?'filled':'')+'" style="font-size:18px">&#9733;</span>').join("");
+    const ratingHtml = '<div style="display:flex;align-items:center;gap:6px;margin-top:8px">'+
+      starsHtml+
+      (count?'<span style="font-size:12px;color:var(--muted)">'+avg+' ('+count+' ovoz)</span>':
+             '<span style="font-size:12px;color:var(--muted)">Hali reyting yo\'q</span>')+
+      '<button class="btn btn-outline btn-sm" onclick="closeModal(\'product-detail-modal\');openRatingModal(\''+id+'\',\''+p.name.replace(/'/g,"\\'")+'\')">&#11088; Reyting</button>'+
+    '</div>';
+    document.getElementById("pd-desc").insertAdjacentHTML("afterend", '<div id="pd-rating">'+ratingHtml+'</div>');
     openModal("product-detail-modal");
   }
 
