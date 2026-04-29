@@ -174,6 +174,9 @@
     .star{font-size:16px;cursor:pointer;color:#d4d4d8;transition:color .15s;line-height:1}
     .star.filled{color:#f59e0b}
     .star:hover,.star.hover{color:#f59e0b}
+    .star-wrap{position:relative;display:inline-block;font-size:14px;line-height:1;cursor:pointer}
+    .star-wrap .star-bg{color:#d4d4d8}
+    .star-wrap .star-fg{color:#f59e0b;position:absolute;top:0;left:0;overflow:hidden;white-space:nowrap}
     .rating-count{font-size:11px;color:var(--muted);margin-left:4px}
     .rating-avg{font-size:12px;font-weight:700;color:#f59e0b;margin-left:2px}
     /* PAGINATION */
@@ -1241,6 +1244,24 @@
     return id;
   }
 
+  // ===== RENDER STARS (qisman to'ldirish) =====
+  // avg=3.7 => 3 ta to'liq, 1 ta 70% to'liq, 1 ta bo'sh
+  function renderStars(avg, size) {
+    size = size || 14;
+    let html = '<div style="display:flex;gap:1px;align-items:center">';
+    for (let i = 1; i <= 5; i++) {
+      const fill = Math.min(1, Math.max(0, avg - (i - 1))); // 0..1
+      const pct = Math.round(fill * 100);
+      html +=
+        '<span class="star-wrap" style="font-size:'+size+'px">'+
+          '<span class="star-bg">&#9733;</span>'+
+          '<span class="star-fg" style="width:'+pct+'%">&#9733;</span>'+
+        '</span>';
+    }
+    html += '</div>';
+    return html;
+  }
+
   // ===== CHAR COUNT =====
   function updateCharCount(el) {
     const count = el.value.length;
@@ -1280,10 +1301,7 @@
       const ratingData = window._ratings && window._ratings[rid];
       const avg = ratingData ? ratingData.avg : 0;
       const count = ratingData ? ratingData.count : 0;
-      const myScore = myRatings[rid] || 0;
-      const starsHtml = [1,2,3,4,5].map(i =>
-        '<span class="star '+(i<=Math.round(avg)?'filled':'')+'" style="font-size:14px">&#9733;</span>'
-      ).join("");
+      const starsHtml = renderStars(avg, 14);
       return '<div class="menu-card" onclick="openProductDetail(\''+rid+'\')" style="cursor:pointer">'+
         '<div class="menu-card-img">'+(imgUrl(p.image)?'<img src="'+imgUrl(p.image)+'" alt="'+p.name+'"/>':'<div class="emoji-icon">'+getIcon(p.category_id?.name||"")+'</div>')+'</div>'+
         '<div class="menu-card-body">'+
@@ -1291,9 +1309,9 @@
           (p.description?'<div class="menu-card-desc">'+p.description+'</div>':'')+
           '<div class="menu-card-footer">'+
             '<span class="price-badge">'+Number(p.price).toLocaleString()+' UZS</span>'+
-            '<div style="display:flex;align-items:center;gap:4px" onclick="event.stopPropagation();openRatingModal(\''+rid+'\',\''+p.name.replace(/'/g,"\\'")+'\')" title="Reyting qo\'ying">'+
+            '<div style="display:flex;align-items:center;gap:3px" onclick="event.stopPropagation();openRatingModal(\''+rid+'\',\''+p.name.replace(/'/g,"\\'")+'\')" title="Reyting qo\'ying">'+
               starsHtml+
-              (count?'<span class="rating-count">'+avg+'</span>':'')+
+              (count?'<span style="font-size:10px;color:var(--muted);margin-left:2px">'+avg+'('+count+')</span>':'<span style="font-size:10px;color:var(--muted-light)">Baholang</span>')+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -1393,10 +1411,11 @@
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      // Saqlash
+      // O'z reytingini saqlash
       const myRatings = JSON.parse(localStorage.getItem("my_ratings") || "{}");
       myRatings[productId] = selectedRatingScore;
       localStorage.setItem("my_ratings", JSON.stringify(myRatings));
+      // Serverdan yangi o'rtacha reytingni olish (barcha userlar qo'ygan ball)
       window._ratings[productId] = data.data;
       closeModal("rating-modal");
       toast("Reytingingiz saqlandi! &#11088;");
@@ -1535,12 +1554,12 @@
     const oldRating = document.getElementById("pd-rating");
     if (oldRating) oldRating.remove();
     // Reyting qismi
-    const starsHtml = [1,2,3,4,5].map(i=>'<span class="star '+(i<=Math.round(avg)?'filled':'')+'" style="font-size:18px">&#9733;</span>').join("");
-    const ratingHtml = '<div style="display:flex;align-items:center;gap:6px;margin-top:8px">'+
+    const starsHtml = renderStars(avg, 18);
+    const ratingHtml = '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">'+
       starsHtml+
-      (count?'<span style="font-size:12px;color:var(--muted)">'+avg+' ('+count+' ovoz)</span>':
+      (count?'<span style="font-size:12px;color:var(--muted);font-weight:600">'+avg+' &#11088; &nbsp;·&nbsp; '+count+' ovoz</span>':
              '<span style="font-size:12px;color:var(--muted)">Hali reyting yo\'q</span>')+
-      '<button class="btn btn-outline btn-sm" onclick="closeModal(\'product-detail-modal\');openRatingModal(\''+id+'\',\''+p.name.replace(/'/g,"\\'")+'\')">&#11088; Reyting</button>'+
+      '<button class="btn btn-outline btn-sm" onclick="closeModal(\'product-detail-modal\');openRatingModal(\''+id+'\',\''+p.name.replace(/'/g,"\\'")+'\')">&#11088; Baholash</button>'+
     '</div>';
     document.getElementById("pd-desc").insertAdjacentHTML("afterend", '<div id="pd-rating">'+ratingHtml+'</div>');
     openModal("product-detail-modal");
