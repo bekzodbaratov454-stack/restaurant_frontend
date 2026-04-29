@@ -457,6 +457,14 @@
           <div id="rating-list" class="card-grid"></div>
         </div>
       </div>
+      <div id="admin-users" class="hidden">
+        <div class="content-header"><h2>&#128101; Foydalanuvchilar</h2></div>
+        <div class="content-body">
+          <div id="users-stats" class="stats-row"></div>
+          <div class="section-label">Ro'yxatdan o'tganlar</div>
+          <div id="users-list" class="card-grid"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -851,7 +859,8 @@
       '<button class="nav-pill active" id="nav-categories" onclick="showAdminSection(\'categories\')">&#128203; Kategoriyalar</button>'+
       '<button class="nav-pill" id="nav-products" onclick="showAdminSection(\'products\')">&#127831; Mahsulotlar</button>'+
       '<button class="nav-pill" id="nav-feedbacks" onclick="showAdminSection(\'feedbacks\')">&#128172; Feedbacklar</button>'+
-      '<button class="nav-pill" id="nav-ratings" onclick="showAdminSection(\'ratings\')">&#11088; Reyting</button>';
+      '<button class="nav-pill" id="nav-ratings" onclick="showAdminSection(\'ratings\')">&#11088; Reyting</button>'+
+      '<button class="nav-pill" id="nav-users" onclick="showAdminSection(\'users\')">&#128101; Userlar</button>';
   }
   function buildUserNav() {
     const fb = currentUser
@@ -874,14 +883,15 @@
       {key:"categories",icon:"&#128203;",label:"Kategoriyalar"},
       {key:"products",icon:"&#127831;",label:"Mahsulotlar"},
       {key:"feedbacks",icon:"&#128172;",label:"Feedbacklar"},
-      {key:"ratings",icon:"&#11088;",label:"Reyting"}
+      {key:"ratings",icon:"&#11088;",label:"Reyting"},
+      {key:"users",icon:"&#128101;",label:"Userlar"}
     ];
     document.getElementById("admin-sidebar").innerHTML = items.map(i=>
       '<button class="sidebar-item" id="side-'+i.key+'" onclick="showAdminSection(\''+i.key+'\')"><span class="sidebar-icon">'+i.icon+'</span>'+i.label+'</button>'
     ).join("");
   }
   function showAdminSection(name) {
-    ["categories","products","feedbacks","ratings"].forEach(s=>{
+    ["categories","products","feedbacks","ratings","users"].forEach(s=>{
       hide("admin-"+s);
       document.getElementById("side-"+s)?.classList.remove("active");
       document.getElementById("nav-"+s)?.classList.remove("active");
@@ -893,6 +903,7 @@
     if (name==="products") loadProducts();
     if (name==="feedbacks") loadFeedbacks();
     if (name==="ratings") loadRatingStats();
+    if (name==="users") loadUsers();
   }
   function showUserSection(name) {
     ["menu","profile","feedback"].forEach(s=>hide("user-"+s));
@@ -1458,6 +1469,48 @@
         '</div>';
       }).join("");
     } catch(err) { list.innerHTML='<div class="empty"><p>Xato: '+err.message+'</p></div>'; }
+  }
+
+  // ===== ADMIN USERS =====
+  async function loadUsers() {
+    const list = document.getElementById("users-list");
+    const stats = document.getElementById("users-stats");
+    list.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+    try {
+      const res = await fetch(BASE+"/auth/users", {headers: authHeaders()});
+      const data = await res.json();
+      const users = data.data || [];
+
+      const admins = users.filter(u => u.role === "admin").length;
+      const regular = users.filter(u => u.role === "user").length;
+
+      stats.innerHTML =
+        '<div class="stat-card"><div class="stat-label">Jami</div><div class="stat-value">'+users.length+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">&#128100; Userlar</div><div class="stat-value" style="color:var(--text)">'+regular+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">&#128737; Adminlar</div><div class="stat-value" style="color:var(--red)">'+admins+'</div></div>';
+
+      if (!users.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-icon">&#128101;</div><p>Foydalanuvchilar yo\'q</p></div>';
+        return;
+      }
+
+      list.innerHTML = users.map(u => {
+        const date = new Date(u.createdAt).toLocaleDateString("uz-UZ", {day:"2-digit", month:"2-digit", year:"numeric"});
+        const isAdminUser = u.role === "admin";
+        const initials = (u.name||"?").slice(0,1).toUpperCase();
+        return '<div class="item-card">'+
+          '<div class="item-thumb" style="background:'+(isAdminUser?'var(--red-light)':'#f0f0f0')+';font-size:18px;font-weight:700;color:'+(isAdminUser?'var(--red)':'var(--muted)')+'">'+initials+'</div>'+
+          '<div class="item-info">'+
+            '<div class="item-name">'+u.name+'</div>'+
+            '<div class="item-meta">'+u.email+'</div>'+
+          '</div>'+
+          '<div class="item-actions" style="flex-direction:column;align-items:flex-end;gap:4px">'+
+            '<span class="badge '+(isAdminUser?'badge-complaint':'badge-review')+'">'+(isAdminUser?'&#128737; Admin':'&#128100; User')+'</span>'+
+            '<span style="font-size:10px;color:var(--muted)">&#128197; '+date+'</span>'+
+          '</div>'+
+        '</div>';
+      }).join("");
+    } catch(err) { list.innerHTML = '<div class="empty"><p>Xato: '+err.message+'</p></div>'; }
   }
 
   function openProductDetail(id) {
