@@ -28,7 +28,11 @@ async function loadProducts() {
 
   list.innerHTML = data.data.map(p => `
     <div class="card">
-      <div class="card-icon">🍗</div>
+      <div class="card-icon">
+        ${p.image
+          ? `<img src="${p.image}" alt="${p.name}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;display:block;">`
+          : "🍗"}
+      </div>
       <div class="card-info">
         <strong>${p.name}</strong>
         <span><span class="cat-badge">${p.category_id?.name || "—"}</span></span>
